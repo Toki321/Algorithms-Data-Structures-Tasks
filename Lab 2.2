@@ -1,150 +1,254 @@
 import java.util.Scanner;
 
+class SLLNode<E> {
+    protected E element;
+    protected SLLNode<E> succ;
 
-@SuppressWarnings("unchecked")
-class Array<E> {
-    private E data[]; // declared to be an Object since it would be too
-    // complicated with generics
-    private int size;
-
-    public Array(int capacity) {
-        this.data = (E[]) new Object[capacity];
-        this.size = 0;
+    public SLLNode(E elem, SLLNode<E> succ) {
+        this.element = elem;
+        this.succ = succ;
     }
 
-    public void insertLast(E o) {
-        //check if there is enough capacity, and if not - resize
-        if(size + 1 > data.length)
-            this.resize();
-        data[size++] = o;
+    @Override
+    public String toString() {
+        return element.toString();
+    }
+}
+
+class SLL<E> {
+    private SLLNode<E> first;
+
+    public SLL() {
+        // Construct an empty SLL
+        this.first = null;
     }
 
-    public void insert(int position, E o) {
-        // before all we check if position is within range
-        if (position >= 0 && position <= size) {
-            //check if there is enough capacity, and if not - resize
-            if(size + 1 > data.length)
-                this.resize();
-            //copy the data, before doing the insertion
-            for(int i=size;i>position;i--) {
-                data[i] = data[i-1];
-            }
-            data[position] = o;
-            size++;
-        } else {
-            System.out.println("Ne mozhe da se vmetne element na taa pozicija");
+    public void deleteList() {
+        first = null;
+    }
+
+    public int size() {
+        int listSize = 0;
+        SLLNode<E> tmp = first;
+        while(tmp != null) {
+            listSize++;
+            tmp = tmp.succ;
         }
-    }
-
-    public void set(int position, E o) {
-        if (position >= 0 && position < size)
-            data[position] = o;
-        else
-            System.out.println("Ne moze da se vmetne element na dadenata pozicija");
-    }
-
-    public E get(int position) {
-        if (position >= 0 && position < size)
-            return data[position];
-        else
-            System.out.println("Ne e validna dadenata pozicija");
-        return null;
-    }
-
-    public int find(E o) {
-        for (int i = 0; i < size; i++) {
-            if(o.equals(data[i]))
-                return i;
-        }
-        return -1;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void delete(int position) {
-        // before all we check if position is within range
-        if (position >= 0 && position < size) {
-            // first resize the storage array
-            E[] newData = (E[]) new Object[size - 1];
-            // copy the data prior to the delition
-            for (int i = 0; i < position; i++)
-                newData[i] = data[i];
-            // move the data after the deletion
-            for (int i = position + 1; i < size; i++)
-                newData[i - 1] = data[i];
-            // replace the storage with the new array
-            data = newData;
-            size--;
-        }
-    }
-
-    public void resize() {
-        // first resize the storage array
-        E[] newData = (E[]) new Object[size*2];
-        // copy the data
-        for (int i = 0; i < size; i++)
-            newData[i] = data[i];
-        // replace the storage with the new array
-        this.data = newData;
+        return listSize;
     }
 
     @Override
     public String toString() {
         String ret = new String();
-        if(size>0) {
-            ret = "{";
-            ret += data[0];
-            for(int i=1;i<size;i++) {
-                ret += "," + data[i];
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            ret += tmp;
+            while (tmp.succ != null) {
+                tmp = tmp.succ;
+                ret += " " + tmp;
             }
-            ret+="}";
-            return ret;
-        }
-        else {
-            ret = "Prazna niza!";
-        }
+        } else
+            ret = "Prazna lista!!!";
         return ret;
     }
 
+    public void insertFirst(E o) {
+        SLLNode<E> ins = new SLLNode<E>(o, null);
+        ins.succ = first;
+        //SLLNode<E> ins = new SLLNode<E>(o, first);
+        first = ins;
+    }
+
+    public void insertAfter(E o, SLLNode<E> node) {
+        if (node != null) {
+            SLLNode<E> ins = new SLLNode<E>(o, node.succ);
+            node.succ = ins;
+        } else {
+            System.out.println("Dadenot jazol e null");
+        }
+    }
+    public void insertBefore(E o, SLLNode<E> before) {
+
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            if(first==before){
+                this.insertFirst(o);
+                return;
+            }
+            //ako first!=before
+            while (tmp.succ != before && tmp.succ!=null)
+                tmp = tmp.succ;
+            if (tmp.succ == before) {
+                tmp.succ = new SLLNode<E>(o, before);;
+            } else {
+                System.out.println("Elementot ne postoi vo listata");
+            }
+        } else {
+            System.out.println("Listata e prazna");
+        }
+    }
+
+    public void insertLast(E o) {
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            while (tmp.succ != null)
+                tmp = tmp.succ;
+            tmp.succ = new SLLNode<E>(o, null);
+        } else {
+            insertFirst(o);
+        }
+    }
+
+    public E deleteFirst() {
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            first = first.succ;
+            return tmp.element;
+        } else {
+            System.out.println("Listata e prazna");
+            return null;
+        }
+    }
+
+    public E delete(SLLNode<E> node) {
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            if(first == node) {
+                return this.deleteFirst();
+            }
+            while (tmp.succ != node && tmp.succ.succ != null)
+                tmp = tmp.succ;
+            if (tmp.succ == node) {
+                tmp.succ = tmp.succ.succ;
+                return node.element;
+            } else {
+                System.out.println("Elementot ne postoi vo listata");
+                return null;
+            }
+        } else {
+            System.out.println("Listata e prazna");
+            return null;
+        }
+
+    }
+
+    public SLLNode<E> getFirst() {
+        return first;
+    }
+
+    public SLLNode<E> find(E o) {
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            while (!tmp.element.equals(o) && tmp.succ != null)
+                tmp = tmp.succ;
+            if (tmp.element.equals(o)) {
+                return tmp;
+            } else {
+                System.out.println("Elementot ne postoi vo listata");
+            }
+        } else {
+            System.out.println("Listata e prazna");
+        }
+        return null;
+    }
+
+    public void merge (SLL<E> in){
+        if (first != null) {
+            SLLNode<E> tmp = first;
+            while(tmp.succ != null)
+                tmp = tmp.succ;
+            tmp.succ = in.getFirst();
+        }
+        else{
+            first = in.getFirst();
+        }
+    }
+
+    public void mirror() {
+        if (first != null) {
+            //m=nextsucc, p=tmp,q=next
+            SLLNode<E> tmp = first;
+            SLLNode<E> newsucc = null;
+            SLLNode<E> next;
+
+            while(tmp != null){
+                next = tmp.succ;
+                tmp.succ = newsucc;
+                newsucc = tmp;
+                tmp = next;
+            }
+            first = newsucc;
+        }
+    }
 }
 
-public class ArrayMeanValue {
+public class SpecialSLLJoin<E> {
 
-    public static int brojDoProsek(Array<Integer> arr) {
-        float prosek = 0;
+    //todo: implement function
+    public SLL<E> specialJoin(SLL<E> list1, SLL<E> list2) {
 
-        for(int i=0;i<arr.getSize();i++) {
-            prosek += (float) arr.get(i).intValue();
-        }
+        SLL<E> rezultat = new SLL<E>();
+        SLLNode<E> jazol1 = list1.getFirst();
+        SLLNode<E> jazol2 = list2.getFirst();
+        int finalSize = list1.size() + list2.size();
 
-        prosek = prosek / (float) arr.getSize();
+        while(finalSize != rezultat.size()) {
 
-        int rez = arr.get(0).intValue();
-        float minDoProsek = Math.abs(prosek - (float) rez);
-
-        for(int i=1;i<arr.getSize();i++) {
-            float currDoProsek = Math.abs(prosek - (float) arr.get(i).intValue());
-            if((currDoProsek < minDoProsek) || ((currDoProsek == minDoProsek) && (arr.get(i) < rez))) {
-                rez = arr.get(i).intValue();
-                minDoProsek = currDoProsek;
+            if (jazol1 != null) {
+                if (jazol1.succ == null) {
+                    rezultat.insertLast(jazol1.element);
+                    jazol1 = null;
+                } else if (jazol1.succ.succ == null) {
+                    rezultat.insertLast(jazol1.element);
+                    rezultat.insertLast(jazol1.succ.element);
+                    jazol1 = null;
+                } else {
+                    rezultat.insertLast(jazol1.element);
+                    rezultat.insertLast(jazol1.succ.element);
+                    jazol1 = jazol1.succ.succ;
+                }
             }
+
+            if (jazol2 != null) {
+                if (jazol2.succ == null) {
+                    rezultat.insertLast(jazol2.element);
+                    jazol2 = null;
+                } else if (jazol2.succ.succ == null) {
+                    rezultat.insertLast(jazol2.element);
+                    rezultat.insertLast(jazol2.succ.element);
+                    jazol2 = null;
+                } else {
+                    rezultat.insertLast(jazol2.element);
+                    rezultat.insertLast(jazol2.succ.element);
+                    jazol2 = jazol2.succ.succ;
+                }
+            }
+
         }
 
-        return rez;
+        return rezultat;
     }
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
-        int N = input.nextInt();
-        Array<Integer> arr = new Array<>(N);
+        int n = input.nextInt();
 
-        for(int i=0;i<N;i++) {
-            arr.insertLast(input.nextInt());
+        SLL<Integer> list1 = new SLL<>();
+        for(int i=0;i<n;i++) {
+            list1.insertLast(input.nextInt());
         }
 
-        System.out.println(brojDoProsek(arr));
+        n = input.nextInt();
+
+        SLL<Integer> list2 = new SLL<>();
+        for(int i=0;i<n;i++) {
+            list2.insertLast(input.nextInt());
+        }
+
+        SpecialSLLJoin<Integer> tmp = new SpecialSLLJoin<>();
+
+        System.out.println(tmp.specialJoin(list1, list2));
     }
+
 }
