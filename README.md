@@ -1,2 +1,2 @@
 # Algorithms-Data-Structures-Tasks
-These are the laboratory exercises that I have done for my university tasks..
+Tasks for uni, algos and data structs class
