@@ -1,0 +1,73 @@
+import java.util.Scanner;
+import java.util.Arrays;
+
+class Tocka {
+    public float x;
+    public float y;
+
+    public Tocka(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        String xx = String.valueOf(x);
+        String yy = String.valueOf(y);
+        return x + " " + y;
+    }
+
+    public float rastojanie(Tocka t) {
+
+        return (float) Math.sqrt(  Math.pow( t.y-this.y,2 ) + ( Math.pow( t.x-this.x,2 )));
+    }
+}
+
+public class MinDistance {
+
+    public static float minimalDistance(float points[][]) {
+        //Vasiot kod ovde
+
+        int length = points.length;
+
+        Tocka niza[] = new Tocka[length];
+
+        for (int i = 0; i < length; i++){
+            niza[i] = new Tocka(points[i][0], points[i][1]);
+        }
+
+//        for (int i=0; i<length; i++) {
+//            System.out.println(niza[i].toString());
+//        }
+
+        float minRast = niza[0].rastojanie(niza[1]);
+
+
+        for (int i=0; i<length; i++) {
+            for (int j=i+1; j<length; j++) {
+                if (niza[i].rastojanie(niza[j]) < minRast)
+                    minRast = niza[i].rastojanie(niza[j]);
+            }
+        }
+
+//        System.out.println(minRast);
+
+        return minRast;
+    }
+
+    public static void main(String [] args) {
+        Scanner input = new Scanner(System.in);
+
+        int N = input.nextInt();
+
+        float points[][] = new float[N][2];
+
+        for(int i=0;i<N;i++) {
+            points[i][0] = input.nextFloat();
+            points[i][1] = input.nextFloat();
+        }
+
+        System.out.printf("%.2f\n", minimalDistance(points));
+        minimalDistance(points);
+    }
+}
