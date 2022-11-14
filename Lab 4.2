@@ -1,0 +1,70 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+public class ZigZagSequence {
+
+
+    static boolean checkNextZigZag(int current, int next) {
+
+        if (current > 0 && next < 0)
+            return true;
+
+        if (current < 0 && next > 0)
+            return true;
+
+        return false;
+
+    }
+    static int najdiNajdolgaCikCak(int a[]) {
+        // Vasiot kod tuka
+
+        int length = a.length;
+        int counter = 1;
+        int biggestZigZag = 0;
+
+        for (int i=0; i<length-1; i++) {
+
+            if (checkNextZigZag(a[i], a[i+1]))
+                counter++;
+
+            else {
+
+                if (biggestZigZag < counter) {
+                    biggestZigZag = counter;
+                }
+                counter = 1;
+
+            }
+                
+
+
+
+        }
+
+        if (counter > biggestZigZag)
+            biggestZigZag = counter;
+
+
+//    System.out.println(biggestZigZag);
+
+        return biggestZigZag;
+    }
+
+    public static void main(String[] args) throws Exception {
+        int i,j,k;
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int N = Integer.parseInt(br.readLine());
+        int a[] = new int[N];
+        for (i=0;i<N;i++)
+            a[i] = Integer.parseInt(br.readLine());
+
+        int rez = najdiNajdolgaCikCak(a);
+        System.out.println(rez);
+
+        br.close();
+
+    }
+
+}
