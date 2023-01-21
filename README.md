@@ -1,2 +1,2 @@
 # Algorithms-Data-Structures-Tasks
-Tasks for uni, algos and data structs class, Java
+May help some younger friends
