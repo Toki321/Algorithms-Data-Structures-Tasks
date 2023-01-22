@@ -1,0 +1,252 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+class MapEntry<K extends Comparable<K>,E> implements Comparable<K> {
+
+    // Each MapEntry object is a pair consisting of a key (a Comparable
+    // object) and a value (an arbitrary object).
+    K key;
+    E value;
+
+    public MapEntry (K key, E val) {
+        this.key = key;
+        this.value = val;
+    }
+
+    public int compareTo (K that) {
+        // Compare this map entry to that map entry.
+        @SuppressWarnings("unchecked")
+        MapEntry<K,E> other = (MapEntry<K,E>) that;
+        return this.key.compareTo(other.key);
+    }
+
+    public String toString () {
+        return "<" + key + "," + value + ">";
+    }
+}
+
+class SLLNode<E> {
+    protected E element;
+    protected SLLNode<E> succ;
+
+    public SLLNode(E elem, SLLNode<E> succ) {
+        this.element = elem;
+        this.succ = succ;
+    }
+
+    @Override
+    public String toString() {
+        return element.toString();
+    }
+}
+
+class CBHT<K extends Comparable<K>, E> {
+
+    // An object of class CBHT is a closed-bucket hash table, containing
+    // entries of class MapEntry.
+    private SLLNode<MapEntry<K,E>>[] buckets;
+
+    @SuppressWarnings("unchecked")
+    public CBHT(int m) {
+        // Construct an empty CBHT with m buckets.
+        buckets = (SLLNode<MapEntry<K,E>>[]) new SLLNode[m];
+    }
+
+    private int hash(K key) {
+        // Napishete ja vie HASH FUNKCIJATA
+
+        return Math.abs(key.hashCode()) % buckets.length;
+    }
+
+    public SLLNode<MapEntry<K,E>> search(K targetKey) {
+        // Find which if any node of this CBHT contains an entry whose key is
+        // equal
+        // to targetKey. Return a link to that node (or null if there is none).
+        int b = hash(targetKey);
+        for (SLLNode<MapEntry<K,E>> curr = buckets[b]; curr != null; curr = curr.succ) {
+            if (targetKey.equals(((MapEntry<K, E>) curr.element).key))
+                return curr;
+        }
+        return null;
+    }
+
+    public void insert(K key, E val) {		// Insert the entry <key, val> into this CBHT.
+        MapEntry<K, E> newEntry = new MapEntry<K, E>(key, val);
+        int b = hash(key);
+        for (SLLNode<MapEntry<K,E>> curr = buckets[b]; curr != null; curr = curr.succ) {
+            if (key.equals(((MapEntry<K, E>) curr.element).key)) {
+                // Make newEntry replace the existing entry ...
+                curr.element = newEntry;
+                return;
+            }
+        }
+        // Insert newEntry at the front of the 1WLL in bucket b ...
+        buckets[b] = new SLLNode<MapEntry<K,E>>(newEntry, buckets[b]);
+    }
+
+    public void delete(K key) {
+        // Delete the entry (if any) whose key is equal to key from this CBHT.
+        int b = hash(key);
+        for (SLLNode<MapEntry<K,E>> pred = null, curr = buckets[b]; curr != null; pred = curr, curr = curr.succ) {
+            if (key.equals(((MapEntry<K,E>) curr.element).key)) {
+                if (pred == null)
+                    buckets[b] = curr.succ;
+                else
+                    pred.succ = curr.succ;
+                return;
+            }
+        }
+    }
+
+    public String toString() {
+        String temp = "";
+        for (int i = 0; i < buckets.length; i++) {
+            temp += i + ":";
+            for (SLLNode<MapEntry<K,E>> curr = buckets[i]; curr != null; curr = curr.succ) {
+                temp += curr.element.toString() + " ";
+            }
+            temp += "\n";
+        }
+        return temp;
+    }
+
+}
+
+public class KumanovskiDijalekt {
+
+    public static boolean isFirstLetterCapitalized(String word) {
+
+        Character firstLetter = word.charAt(0);
+
+        if (Character.isUpperCase(firstLetter))
+            return true;
+
+        return false;
+    }
+
+    public static String lowerFirstLetter(String word) {
+        if (word == null || word.length() == 0) {
+            return word;
+        }
+        return word.substring(0, 1).toLowerCase() + word.substring(1);
+    }
+
+    public static String UpperFirstLetter(String word) {
+
+        if (word == null || word.length() == 0)
+            return word;
+
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+
+    public static boolean isInterpunciskiZnak(String word) {
+
+        char lastLetter = word.charAt(word.length()-1);
+
+        if (lastLetter == ',' || lastLetter == '!' || lastLetter == '?' || lastLetter == '.')
+            return true;
+
+        return false;
+
+    }
+
+    public static String zameni(String word, CBHT<String,String> tabela) {
+
+        String nonModifiedWord = word;
+        boolean wordIsCapitalized = false;
+
+        if (isFirstLetterCapitalized(word)) {
+
+            wordIsCapitalized = true;
+            word = lowerFirstLetter(word);
+        }
+
+        char lastLetter;
+        int lengthWord = word.length();
+
+        if (isInterpunciskiZnak(word)) {
+
+            lastLetter = word.charAt(lengthWord-1);
+            word = word.substring(0, lengthWord-1);
+
+            try {
+                String replaceWithThisWord = tabela.search(word).element.value + lastLetter;
+
+                if (wordIsCapitalized == true)
+                    return  UpperFirstLetter(replaceWithThisWord);
+                else
+                    return replaceWithThisWord;
+
+            } catch (NullPointerException e) {
+                return nonModifiedWord;
+            }
+
+        }
+        else {
+
+            try {
+                String replaceWithThisWord = tabela.search(word).element.value ;
+                if (wordIsCapitalized == true)
+                    return  UpperFirstLetter(replaceWithThisWord);
+                else
+                    return replaceWithThisWord;
+
+            }catch (NullPointerException e) {
+                return nonModifiedWord;
+            }
+
+        }
+
+    }
+
+    public static void main (String[] args) throws IOException {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                System.in));
+        int N = Integer.parseInt(br.readLine());
+
+        String rechnik[]=new String[N];
+
+        for(int i=0;i<N;i++){
+            rechnik[i]=br.readLine();
+        }
+
+        String tekst=br.readLine();
+
+        //Vasiot kod tuka
+
+        CBHT<String, String> tabela = new CBHT<>(N+10);
+
+        for (int i=0; i<N; i++) {
+
+            String[] splittedLine = rechnik[i].split(" ");
+            String kumanovskiZbor = splittedLine[0];
+            String mkdZbor = splittedLine[1];
+
+            tabela.insert(kumanovskiZbor, mkdZbor);
+        }
+
+        String splittedTekstArray[] = tekst.split(" ");
+
+
+        for (int i=0; i<splittedTekstArray.length; i++) {
+
+            splittedTekstArray[i] = zameni(splittedTekstArray[i], tabela);
+        }
+
+        String tekstSolution = "";
+
+        for (int i=0; i<splittedTekstArray.length; i++) {
+
+            tekstSolution += splittedTekstArray[i] + " ";
+        }
+
+        tekstSolution = tekstSolution.substring(0, tekstSolution.length()-1);
+
+        System.out.print(tekstSolution);
+
+    }
+
+    // imhere
+}
